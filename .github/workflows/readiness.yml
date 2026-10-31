@@ -1,0 +1,140 @@
+name: Readiness
+
+on:
+  pull_request:
+  push:
+    branches: [main, feature/devsecops-readiness]
+  workflow_dispatch:
+  workflow_call:
+  schedule:
+    - cron: '23 12 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: readiness-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_VERSION: '0.13.6'
+  CSP_DRY_RUN: 'true'
+  CSP_DISABLE_BROKER_ACCESS: 'true'
+  CSP_AI_ENABLED: 'false'
+
+jobs:
+  baseline:
+    name: Detect application baseline
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      application_present: ${{ steps.detect.outputs.application_present }}
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+      - id: detect
+        shell: bash
+        run: |
+          if [[ -f pyproject.toml && -f uv.lock && -f src/csp_alerts/cli.py ]]; then
+            echo 'application_present=true' >> "$GITHUB_OUTPUT"
+          elif [[ -e pyproject.toml || -e uv.lock || -e src ]]; then
+            echo 'Incomplete application baseline; refusing to skip application gates.' >&2
+            exit 1
+          else
+            echo 'application_present=false' >> "$GITHUB_OUTPUT"
+            echo 'Support-only branch: application checks are skipped, not passed. This is not a production-readiness verdict.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  support:
+    name: Support checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@3259c6206f993105e3a61b142c2d97bf4b9ef83d # v7.1.0
+        with:
+          version: ${{ env.UV_VERSION }}
+      - run: uv sync --project ops/devsecops --frozen --python 3.12
+      - run: uv run --project ops/devsecops --frozen python -m unittest discover -s ops/devsecops/tests -v
+      - run: uv run --project ops/devsecops --frozen ruff check ops/devsecops
+      - run: uv run --project ops/devsecops --frozen python ops/devsecops/readiness.py check-workflows
+      - run: uv run --project ops/devsecops --frozen python ops/devsecops/readiness.py publication-check --output ops/devsecops/_work/publication.json
+
+  application:
+    name: Application (${{ matrix.os }}, Python ${{ matrix.python }})
+    needs: baseline
+    if: needs.baseline.outputs.application_present == 'true'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          repository: medloh/stockpile
+          ref: 34bf6cf8101e54620ea1e2bda940f0a3aa88e791
+          path: third_party/stockpile
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@3259c6206f993105e3a61b142c2d97bf4b9ef83d # v7.1.0
+        with:
+          version: ${{ env.UV_VERSION }}
+      - run: uv sync --locked --python ${{ matrix.python }}
+      - run: uv run --frozen python ops/devsecops/readiness.py verify-upstream
+      - run: uv run --frozen python -m pytest tests/unit tests/acceptance -q --tb=short
+
+  security:
+    name: Security gates
+    needs: baseline
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@3259c6206f993105e3a61b142c2d97bf4b9ef83d # v7.1.0
+        with:
+          version: ${{ env.UV_VERSION }}
+      - run: uv sync --project ops/devsecops --frozen --python 3.12
+      - name: Install checksum-verified Gitleaks
+        run: uv run --project ops/devsecops --frozen python ops/devsecops/tooling.py
+      - name: Verify secret-scanner exception scope
+        run: |
+          export PATH="$PWD/ops/devsecops/_work/bin:$PATH"
+          uv run --project ops/devsecops --frozen python -m unittest discover -s ops/devsecops/tests -q
+      - name: Scan repository history (redacted)
+        run: ops/devsecops/_work/bin/gitleaks git --config ops/devsecops/gitleaks.toml --redact=100 --no-banner --log-opts="--all" .
+      - name: Scan current tracked content (redacted)
+        run: |
+          uv run --project ops/devsecops --frozen python ops/devsecops/stage.py ops/devsecops/_work/publication
+          ops/devsecops/_work/bin/gitleaks dir --config ops/devsecops/gitleaks.toml --redact=100 --no-banner ops/devsecops/_work/publication
+      - name: Critical Python correctness
+        if: needs.baseline.outputs.application_present == 'true'
+        run: uv run --project ops/devsecops --frozen ruff check --isolated --select E9,F63,F7,F82 src
+      - name: Application security analysis
+        if: needs.baseline.outputs.application_present == 'true'
+        id: bandit
+        continue-on-error: true
+        run: uv run --project ops/devsecops --frozen bandit -r src -ll
+      - name: Export exact runtime dependencies
+        if: needs.baseline.outputs.application_present == 'true'
+        run: uv export --frozen --no-dev --no-emit-project --format requirements.txt --output-file ops/devsecops/_work/runtime.txt
+      - name: Audit locked runtime dependencies
+        if: needs.baseline.outputs.application_present == 'true'
+        run: uv run --project ops/devsecops --frozen pip-audit -r ops/devsecops/_work/runtime.txt --no-deps --disable-pip --require-hashes
+      - name: Export exact support dependencies
+        run: uv export --project ops/devsecops --frozen --no-emit-project --format requirements.txt --output-file ops/devsecops/_work/support.txt
+      - name: Audit support dependencies
+        run: uv run --project ops/devsecops --frozen pip-audit -r ops/devsecops/_work/support.txt --no-deps --disable-pip --require-hashes
+      - name: Enforce security analysis result
+        if: always() && needs.baseline.outputs.application_present == 'true' && steps.bandit.outcome != 'success'
+        run: exit 1

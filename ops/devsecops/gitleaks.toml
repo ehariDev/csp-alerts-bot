@@ -1,0 +1,15 @@
+title = "CSP support secret scan"
+
+[extend]
+useDefault = true
+
+# Reviewed false positive: this Python attribute expression is a contract identifier,
+# not a credential. Match only this expression in this one synthetic test file.
+# Other matches, including secrets elsewhere on the same line, remain in scope.
+[[allowlists]]
+description = "Synthetic OptionQuote attribute reference"
+condition = "AND"
+targetRules = ["generic-api-key"]
+paths = ['''(^|/)tests/unit/test_exits_drawdown\.py$''']
+regexTarget = "match"
+regexes = ['''^p\.contract_key, retrieved_at_utc=NOW $''']

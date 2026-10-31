@@ -1,0 +1,47 @@
+name: Release candidate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    uses: ./.github/workflows/readiness.yml
+  bundle:
+    name: Build reviewed candidate
+    needs: readiness
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+      - name: Require the application baseline before building a release
+        shell: bash
+        run: |
+          test -f pyproject.toml && test -f uv.lock && test -f src/csp_alerts/cli.py || {
+            echo 'A support-only branch cannot produce an application release.' >&2
+            exit 1
+          }
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          repository: medloh/stockpile
+          ref: 34bf6cf8101e54620ea1e2bda940f0a3aa88e791
+          path: third_party/stockpile
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@3259c6206f993105e3a61b142c2d97bf4b9ef83d # v7.1.0
+        with:
+          version: '0.13.6'
+      - run: uv sync --project ops/devsecops --frozen --python 3.12
+      - run: uv run --project ops/devsecops --frozen python -m build --wheel --no-isolation . --outdir ops/devsecops/_work/wheel
+      - run: uv export --frozen --no-dev --no-emit-project --format requirements.txt --output-file ops/devsecops/_work/runtime.txt
+      - run: uv export --frozen --no-dev --no-emit-project --format cyclonedx1.5 --output-file ops/devsecops/_work/runtime.cdx.json
+      - run: uv run --project ops/devsecops --frozen python ops/devsecops/release.py
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: reviewed-candidate-${{ github.sha }}
+          path: ops/devsecops/_work/release/*
+          if-no-files-found: error
+          retention-days: 14

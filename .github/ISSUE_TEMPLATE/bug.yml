@@ -1,0 +1,22 @@
+name: Bug report
+description: Report a reproducible defect using synthetic data only.
+body:
+  - type: markdown
+    attributes:
+      value: 'Do not include tokens, chat IDs, account records, private exports, or database files. Report security issues privately to the repository owner.'
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction using synthetic data
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Release, Windows version, and Python version
