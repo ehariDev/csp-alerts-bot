@@ -69,6 +69,15 @@ class PublicationTests(unittest.TestCase):
         (folder / "test.yml").write_text("steps:\n  - uses: actions/checkout@main\n")
         self.assertEqual(check_workflows(self.root)["status"], "FAIL")
 
+    def test_workflow_commented_examples_are_not_executed_actions(self):
+        folder = self.root / ".github/workflows"
+        folder.mkdir(parents=True)
+        (folder / "test.yml").write_text(
+            "# - uses: actions/setup-example@v1\n"
+            "steps:\n  - uses: actions/checkout@" + "a" * 40 + "\n"
+        )
+        self.assertEqual(check_workflows(self.root)["status"], "PASS")
+
     def test_upstream_wrong_revision_and_dirty_worktree_rejected(self):
         with patch("readiness.git", return_value="wrong"):
             with self.assertRaises(ValueError):
