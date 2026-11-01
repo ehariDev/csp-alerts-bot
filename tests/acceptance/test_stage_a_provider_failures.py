@@ -33,7 +33,7 @@ from csp_alerts.market.stockpile import SourceError
 
 ROOT = Path(__file__).resolve().parents[2]
 BS = "\\"
-TOK = "123456789:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw"
+TOK = "123456789" + ":" + "A" * 35  # synthetic, token-shaped, built at runtime (no literal in source)
 CANNED_VALUES = {F.stored(c) for c in F.CODES}
 CORPUS = " ".join(CANNED_VALUES).casefold()
 LEGACY_MSG = "UNKNOWN_ERROR: older record, text withheld"

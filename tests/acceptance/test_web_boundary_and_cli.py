@@ -309,6 +309,9 @@ def test_real_process_start_stop_leaves_journal_and_job_state_untouched(tmp_path
     write_approved(tmp_path / "a.json", ())
     outputs = []
     for round_ in range(2):
+        if round_:  # restart on a fresh ephemeral port: the server deliberately does not set SO_REUSEADDR, so the old port can sit in TIME_WAIT on Linux
+            port = _free_port()
+            envf = _env(tmp_path, scrypt_hash(PW), db, port)
         pr = start()
         try:
             c = http.client.HTTPConnection("127.0.0.1", port, timeout=10)

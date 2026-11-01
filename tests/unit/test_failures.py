@@ -11,7 +11,7 @@ from csp_alerts.market import failures as F
 from csp_alerts.market.stockpile import SourceError
 
 BS = chr(92)
-TOK = "123456789:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw"
+TOK = "123456789" + ":" + "A" * 35  # synthetic, token-shaped, built at runtime (no literal in source)
 HOSTILE = [
     f"ConnectionError: C:{BS}Users{BS}John Smith{BS}x.log token={TOK} https://u:pw@h/x?key=SECRET99",
     '{"access_token": "abcSECRET1", "password":"hunter2pw"}',
