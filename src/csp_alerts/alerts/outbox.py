@@ -129,7 +129,7 @@ class FlushReport:
 
 def _set(journal: Journal, aid: str, **cols: Any) -> None:
     sets = ", ".join(f"{k}=?" for k in cols)
-    journal.conn.execute(f"UPDATE alert_outbox SET {sets} WHERE alert_id=?", (*cols.values(), aid))
+    journal.conn.execute(f"UPDATE alert_outbox SET {sets} WHERE alert_id=?", (*cols.values(), aid))  # nosec B608 - only "col=?" pairs from code-chosen kwargs interpolated; values bound
 
 
 def _evidence_update(row: sqlite3.Row, **kv: Any) -> str:

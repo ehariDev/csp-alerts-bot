@@ -46,7 +46,11 @@ def stage(root: Path, destination: Path) -> dict:
         handle.write(EXTRA_IGNORES)
     manifest = {p.relative_to(destination).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
                 for p in destination.rglob("*") if p.is_file()}
-    (destination / "PUBLICATION_MANIFEST.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    # Paths are data, never JSON keys resembling credential assignments followed by
+    # high-entropy hashes. This avoids false positives without suppressing scans.
+    records = {"schema_version": 1, "files": [{"path": name, "sha256": digest}
+                                            for name, digest in sorted(manifest.items())]}
+    (destination / "PUBLICATION_MANIFEST.json").write_text(json.dumps(records, indent=2) + "\n", encoding="utf-8")
     return {"status": "PASS", "file_count": len(manifest)}
 
 
