@@ -72,7 +72,7 @@ def watchlist_symbols(j: Journal) -> list[tuple[str, str, str]]:
 def held_symbols(j: Journal) -> set[str]:
     """Underlyings of positions that are still live obligations plus owned shares. Read-only."""
     states = [s.value for s in HELD_STATES]
-    q = f"SELECT DISTINCT ticker FROM option_positions WHERE state IN ({','.join('?' * len(states))})"
+    q = f"SELECT DISTINCT ticker FROM option_positions WHERE state IN ({','.join('?' * len(states))})"  # nosec B608 - only ? placeholders interpolated; values bound
     out = {r[0] for r in j.conn.execute(q, states)}
     out |= {r[0] for r in j.conn.execute("SELECT DISTINCT ticker FROM stock_lots WHERE CAST(shares AS REAL) > 0")}
     return out
