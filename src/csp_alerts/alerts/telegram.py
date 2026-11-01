@@ -64,7 +64,7 @@ class TelegramTransport:
         req = urllib.request.Request(self._url(method), data=json.dumps(payload).encode("utf-8"), method="POST",
                                      headers={"Content-Type": "application/json"})
         try:
-            with urllib.request.urlopen(req, timeout=self._timeout) as r:  # noqa: S310 - https enforced above
+            with urllib.request.urlopen(req, timeout=self._timeout) as r:  # noqa: S310  # nosec B310 - base URL validated as https (loopback only in tests) in __init__
                 return r.status, json.loads(r.read().decode("utf-8")), None
         except urllib.error.HTTPError as e:
             try:

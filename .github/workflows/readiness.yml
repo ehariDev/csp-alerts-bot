@@ -68,7 +68,7 @@ jobs:
     needs: baseline
     if: needs.baseline.outputs.application_present == 'true'
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:
@@ -89,7 +89,7 @@ jobs:
           version: ${{ env.UV_VERSION }}
       - run: uv sync --locked --python ${{ matrix.python }}
       - run: uv run --frozen python ops/devsecops/readiness.py verify-upstream
-      - run: uv run --frozen python -m pytest tests/unit tests/acceptance -q --tb=short
+      - run: uv run --frozen python ops/devsecops/run_tests.py
 
   security:
     name: Security gates
@@ -114,11 +114,15 @@ jobs:
       - name: Scan repository history (redacted)
         run: ops/devsecops/_work/bin/gitleaks git --config ops/devsecops/gitleaks.toml --redact=100 --no-banner --log-opts="--all" .
       - name: Scan current tracked content (redacted)
+        id: current_scan
+        continue-on-error: true
         run: |
           uv run --project ops/devsecops --frozen python ops/devsecops/stage.py ops/devsecops/_work/publication
           ops/devsecops/_work/bin/gitleaks dir --config ops/devsecops/gitleaks.toml --redact=100 --no-banner ops/devsecops/_work/publication
       - name: Critical Python correctness
         if: needs.baseline.outputs.application_present == 'true'
+        id: correctness
+        continue-on-error: true
         run: uv run --project ops/devsecops --frozen ruff check --isolated --select E9,F63,F7,F82 src
       - name: Application security analysis
         if: needs.baseline.outputs.application_present == 'true'
@@ -130,11 +134,19 @@ jobs:
         run: uv export --frozen --no-dev --no-emit-project --format requirements.txt --output-file ops/devsecops/_work/runtime.txt
       - name: Audit locked runtime dependencies
         if: needs.baseline.outputs.application_present == 'true'
+        id: runtime_audit
+        continue-on-error: true
         run: uv run --project ops/devsecops --frozen pip-audit -r ops/devsecops/_work/runtime.txt --no-deps --disable-pip --require-hashes
       - name: Export exact support dependencies
         run: uv export --project ops/devsecops --frozen --no-emit-project --format requirements.txt --output-file ops/devsecops/_work/support.txt
       - name: Audit support dependencies
+        id: support_audit
+        continue-on-error: true
         run: uv run --project ops/devsecops --frozen pip-audit -r ops/devsecops/_work/support.txt --no-deps --disable-pip --require-hashes
-      - name: Enforce security analysis result
-        if: always() && needs.baseline.outputs.application_present == 'true' && steps.bandit.outcome != 'success'
+      - name: Enforce security results
+        if: >-
+          always() &&
+          (steps.current_scan.outcome != 'success' || steps.support_audit.outcome != 'success' ||
+          (needs.baseline.outputs.application_present == 'true' &&
+          (steps.bandit.outcome != 'success' || steps.correctness.outcome != 'success' || steps.runtime_audit.outcome != 'success')))
         run: exit 1

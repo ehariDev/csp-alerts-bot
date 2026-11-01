@@ -19,6 +19,7 @@ from backup import inspect_snapshot, snapshot
 from health_probe import backup_recent, endpoint
 from readiness import check_workflows, private_path, publication_check, verify_upstream
 from release import wheel_check
+from run_tests import WINDOWS_ONLY, clean_test_env, pytest_command
 from stage import stage
 
 
@@ -53,6 +54,14 @@ class PublicationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             stage(self.root, self.root / "config")
 
+    def test_manifest_records_separate_paths_from_hashes(self):
+        output = self.root / "snapshot"
+        stage(self.root, output)
+        manifest = json.loads((output / "PUBLICATION_MANIFEST.json").read_text())
+        self.assertEqual(manifest["schema_version"], 1)
+        self.assertTrue(manifest["files"])
+        self.assertEqual(set(manifest["files"][0]), {"path", "sha256"})
+
     def test_tracked_secrets_rejected_even_outside_allowlist(self):
         (self.root / ".git").mkdir()
         with patch("readiness.git", return_value="other/private.key\0.env\0"):
@@ -68,6 +77,15 @@ class PublicationTests(unittest.TestCase):
         folder.mkdir(parents=True)
         (folder / "test.yml").write_text("steps:\n  - uses: actions/checkout@main\n")
         self.assertEqual(check_workflows(self.root)["status"], "FAIL")
+
+    def test_workflow_commented_examples_are_not_executed_actions(self):
+        folder = self.root / ".github/workflows"
+        folder.mkdir(parents=True)
+        (folder / "test.yml").write_text(
+            "# - uses: actions/setup-example@v1\n"
+            "steps:\n  - uses: actions/checkout@" + "a" * 40 + "\n"
+        )
+        self.assertEqual(check_workflows(self.root)["status"], "PASS")
 
     def test_upstream_wrong_revision_and_dirty_worktree_rejected(self):
         with patch("readiness.git", return_value="wrong"):
@@ -153,6 +171,23 @@ class HealthTests(unittest.TestCase):
             self.assertTrue(backup_recent(root, now + 60))
             self.assertFalse(backup_recent(root, now + 27 * 3600))
             self.assertFalse(backup_recent(root, now - 60))
+
+
+class TestRunnerTests(unittest.TestCase):
+    def test_ci_application_settings_and_credentials_cannot_override_fixture_files(self):
+        original = {"CSP_DRY_RUN": "true", "CSP_DISABLE_BROKER_ACCESS": "true",
+                    "TELEGRAM_BOT_TOKEN": "synthetic", "csp_dashboard_port": "9999", "PATH": "tools"}
+        self.assertEqual(clean_test_env(original), {"PATH": "tools"})
+        self.assertEqual(original["CSP_DRY_RUN"], "true")
+
+    def test_windows_keeps_all_tests_and_every_platform_blocks_external_sockets(self):
+        for platform in ("win32", "linux"):
+            command = pytest_command(["tests/unit", "tests/acceptance", "-q"], platform)
+            self.assertIn("--disable-socket", command)
+            self.assertIn("--allow-hosts=127.0.0.1,::1", command)
+            exclusions = [arg for arg in command if arg.startswith("--deselect=")]
+            self.assertEqual(len(exclusions), 0 if platform == "win32" else len(WINDOWS_ONLY))
+            self.assertFalse(any("test_owner_journey" in arg or "real_process_start_stop" in arg for arg in exclusions))
 
 
 @unittest.skipUnless(shutil.which("age") and shutil.which("age-keygen"), "native age tools not installed")

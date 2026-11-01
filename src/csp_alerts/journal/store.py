@@ -159,7 +159,7 @@ class Journal:
             if version in done:
                 continue
             script = (
-                "BEGIN IMMEDIATE;\n" + p.read_text(encoding="utf-8") + "\n"
+                "BEGIN IMMEDIATE;\n" + p.read_text(encoding="utf-8") + "\n"  # nosec B608 - packaged migration file text, not user input
                 f"INSERT INTO schema_migrations(version, applied_at_utc) VALUES ('{version}', '{to_iso(self.clock())}');\n"
                 "COMMIT;"
             )
@@ -227,7 +227,7 @@ class Journal:
         return eid
 
     def audit_events(self, event_type: str | None = None) -> list[dict[str, Any]]:
-        q = "SELECT * FROM audit_log" + (" WHERE event_type=?" if event_type else "") + " ORDER BY rowid"
+        q = "SELECT * FROM audit_log" + (" WHERE event_type=?" if event_type else "") + " ORDER BY rowid"  # nosec B608 - fixed clause chosen in code; value bound
         rows = self.conn.execute(q, (event_type,) if event_type else ()).fetchall()
         return [dict(r) for r in rows]
 
@@ -375,7 +375,7 @@ class Journal:
             if "notes" in fields:
                 sets["notes"] = str(fields["notes"])
             self.conn.execute(
-                f"UPDATE option_positions SET {', '.join(f'{c}=?' for c in sets)} WHERE trade_id=?",
+                f"UPDATE option_positions SET {', '.join(f'{c}=?' for c in sets)} WHERE trade_id=?",  # nosec B608 - column names from code-controlled allowlist; values bound
                 (*sets.values(), trade_id),
             )
             self._audit(
@@ -640,15 +640,15 @@ class Journal:
     # ---- book ------------------------------------------------------------
     def last_ledger_change(self) -> datetime | None:
         q = ",".join("?" * len(LEDGER_EVENT_TYPES))
-        r = self.conn.execute(f"SELECT MAX(created_at_utc) FROM audit_log WHERE event_type IN ({q})", LEDGER_EVENT_TYPES).fetchone()
+        r = self.conn.execute(f"SELECT MAX(created_at_utc) FROM audit_log WHERE event_type IN ({q})", LEDGER_EVENT_TYPES).fetchone()  # nosec B608 - only ? placeholders interpolated; values bound
         return _ts(r[0])
 
     def ledger_seqs(self) -> tuple[int, int]:
         """(latest ledger-event rowid, latest ledger-or-snapshot rowid). Monotonic, so it changes on every ledger event
         even when timestamps tie within one second (SR-07)."""
         q = ",".join("?" * len(LEDGER_EVENT_TYPES))
-        a = self.conn.execute(f"SELECT COALESCE(MAX(rowid),0) FROM audit_log WHERE event_type IN ({q})", LEDGER_EVENT_TYPES).fetchone()[0]
-        b = self.conn.execute(f"SELECT COALESCE(MAX(rowid),0) FROM audit_log WHERE event_type IN ({q},'SNAPSHOT_ADDED')",
+        a = self.conn.execute(f"SELECT COALESCE(MAX(rowid),0) FROM audit_log WHERE event_type IN ({q})", LEDGER_EVENT_TYPES).fetchone()[0]  # nosec B608 - only ? placeholders interpolated; values bound
+        b = self.conn.execute(f"SELECT COALESCE(MAX(rowid),0) FROM audit_log WHERE event_type IN ({q},'SNAPSHOT_ADDED')",  # nosec B608 - only ? placeholders interpolated; values bound
                               LEDGER_EVENT_TYPES).fetchone()[0]
         return a, b
 
@@ -700,7 +700,7 @@ class Journal:
         states = sorted(s.value for s in COLLATERAL_STATES | {PositionState.ASSIGNED_PENDING_RECONCILIATION})
         q = ",".join("?" * len(states))
         pos = [{"id": r["trade_id"], "sector": r["sector"], "bucket": r["correlation_bucket"]} for r in self.conn.execute(
-            f"SELECT trade_id, sector, correlation_bucket FROM option_positions WHERE ticker=? AND state IN ({q}) ORDER BY trade_id",
+            f"SELECT trade_id, sector, correlation_bucket FROM option_positions WHERE ticker=? AND state IN ({q}) ORDER BY trade_id",  # nosec B608 - only ? placeholders interpolated; values bound
             (ticker, *states))]
         lots = [{"id": r["lot_id"], "sector": r["sector"], "bucket": r["correlation_bucket"]} for r in self.conn.execute(
             "SELECT lot_id, sector, correlation_bucket FROM stock_lots WHERE ticker=? ORDER BY lot_id", (ticker,))]
@@ -719,7 +719,7 @@ class Journal:
                 raise JournalError("no held rows carry labels for that ticker")
             states = sorted(s.value for s in COLLATERAL_STATES | {PositionState.ASSIGNED_PENDING_RECONCILIATION})
             q = ",".join("?" * len(states))
-            self.conn.execute(f"UPDATE option_positions SET sector=?, correlation_bucket=? WHERE ticker=? AND state IN ({q})",
+            self.conn.execute(f"UPDATE option_positions SET sector=?, correlation_bucket=? WHERE ticker=? AND state IN ({q})",  # nosec B608 - only ? placeholders interpolated; values bound
                               (sector, bucket, ticker, *states))
             self.conn.execute("UPDATE stock_lots SET sector=?, correlation_bucket=? WHERE ticker=?", (sector, bucket, ticker))
             self._audit("LABEL_CORRECTED", actor, {"ticker": ticker, "positions": pos, "lots": lots},

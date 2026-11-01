@@ -80,7 +80,9 @@ def test_owner_journey_reconcile_scan_record_monitor_close(tmp_path, capsys):
     # 2. scan preview (synthetic chain; dry-run: nothing queued)
     j = e.journal()
     now = datetime.now(timezone.utc)
-    res = run_scan(journal=j, policy=POL, approved=load_approved(e.approved), source=Src([raw_row(strike=40.0, exp=exp)]),
+    # the shared fixture's last-trade stamp is relative to a frozen NOW; this test runs on the real clock, so stamp it relative to now
+    fresh = float(int((now - timedelta(hours=1)).timestamp() * 1000))
+    res = run_scan(journal=j, policy=POL, approved=load_approved(e.approved), source=Src([raw_row(strike=40.0, exp=exp, last_trade_ms=fresh)]),
                    now_utc=now, session=OPEN, sleep=lambda s: None)
     assert res.status == "CANDIDATES" and [m.kind for m in res.messages] == ["ENTRY_RESEARCH"]
     assert "NO ORDER SENT" in res.messages[0].text and j.conn.execute("SELECT COUNT(*) FROM alert_outbox").fetchone()[0] == 0
@@ -100,7 +102,7 @@ def test_owner_journey_reconcile_scan_record_monitor_close(tmp_path, capsys):
 
     # 4. monitor warning: 60% of the premium captured (ask 0.20 vs credit 0.50) on a synthetic quote
     j = e.journal()
-    mon = run_monitor(journal=j, policy=POL, source=Src([raw_row(strike=40.0, bid=0.15, ask=0.20, exp=exp)]),
+    mon = run_monitor(journal=j, policy=POL, source=Src([raw_row(strike=40.0, bid=0.15, ask=0.20, exp=exp, last_trade_ms=fresh)]),
                       now_utc=datetime.now(timezone.utc), session=OPEN)
     assert mon.status == "ALERTS" and [m.kind for m in mon.messages] == ["PROFIT_EXIT"]
     assert "INDICATIVE - quote age UNKNOWN" in mon.messages[0].text
@@ -111,7 +113,7 @@ def test_owner_journey_reconcile_scan_record_monitor_close(tmp_path, capsys):
     assert e.cli("journal", "close", "--trade-id", "PAPER-1", "--debit", "0.20", "--fees", "0.65", apply=True) == 0
     j = e.journal()
     assert j.get_position("PAPER-1").state is S.CLOSED
-    mon2 = run_monitor(journal=j, policy=POL, source=Src([raw_row(strike=40.0, bid=0.15, ask=0.20, exp=exp)]),
+    mon2 = run_monitor(journal=j, policy=POL, source=Src([raw_row(strike=40.0, bid=0.15, ask=0.20, exp=exp, last_trade_ms=fresh)]),
                        now_utc=datetime.now(timezone.utc), session=OPEN)
     assert mon2.status == "NO_POSITIONS" and mon2.messages == []
     from csp_alerts.policy.portfolio import compute_exposure

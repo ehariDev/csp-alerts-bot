@@ -118,7 +118,7 @@ def check_workflows(root: Path) -> dict:
         text = p.read_text(encoding="utf-8")
         if "pull_request_target" in text or "runs-on: self-hosted" in text:
             problems.append(f"unsafe trigger or runner: {p.name}")
-        for action in re.findall(r"uses:\s*([^\s#]+)", text):
+        for action in re.findall(r"(?m)^\s*(?:-\s*)?uses:\s*([^\s#]+)", text):
             if not action.startswith("./") and not re.fullmatch(r"[\w./-]+@[0-9a-f]{40}", action):
                 problems.append(f"action is not SHA-pinned: {p.name}")
     return {"schema_version": 1, "status": "FAIL" if problems else "PASS", "problems": problems}
