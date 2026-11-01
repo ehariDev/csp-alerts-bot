@@ -1,0 +1,11 @@
+SYNTHETIC SAMPLE - generated from fictional fixtures by the real templates. Not market data, not a
+recommendation. Ticker EXAMPLE does not exist. Real alerts are produced by the same templates.
+----------------------------------------------------------------------
+kind=DATA_ISSUE severity=WARN dedup=DATA_ISSUE|2026-10-30|OTHER
+
+CSP DATA ISSUE
+Scan 10:05 AM CDT: market data unavailable; this is NOT a no-trade result.
+  OTHER: FETCH_ERROR - RateLimitError: 429
+Coverage: 1 of 2 approved symbols scanned (EXAMPLE OK 85 puts; OTHER UNAVAILABLE FETCH_ERROR) - PARTIAL: do not read this as a clean no-trade
+Check the quote manually at your broker. No stale candidates were produced.
+NO ORDER SENT.

@@ -1,0 +1,21 @@
+SYNTHETIC SAMPLE - generated from fictional fixtures by the real templates. Not market data, not a
+recommendation. Ticker EXAMPLE does not exist. Real alerts are produced by the same templates.
+----------------------------------------------------------------------
+kind=ENTRY_RESEARCH severity=INFO dedup=ENTRY_RESEARCH|2026-10-30|EXAMPLE|2026-12-09|P|40.00
+
+CSP RESEARCH CANDIDATE - INDICATIVE
+EXAMPLE | 2026-12-09 PUT | $40 strike | 40 DTE
+1 contract | Spot $45 | Model delta -0.130
+Bid/Ask $0.50/$0.54 | OI 1,000 | Today vol 100
+Potential premium at bid $50 | Cash collateral $4,000
+Expiry break-even: $39.50 (before fees)
+Exposure after fill: $4,000 / $25,000 normal cap | put collateral cap in pilot $15,000
+Free cash after fill (owner-entered): $56,000
+Pilot cap $15,000: $0 used, $15,000 room (before this trade)
+Account snapshot used: 9:05 AM CDT
+Ordering indicators only (not a forecast): spread 7.7% of mid; bid/collateral 0.031% per calendar day
+Source: YAHOO_VIA_STOCKPILE; tier INDICATIVE_UNTIMESTAMPED; retrieved 10:05 AM CDT
+Bid/ask exchange timestamp: UNAVAILABLE - VERIFY LIVE
+Approved acquisition ceiling: $40 | Event review: 2026-10-30, cleared through 2026-12-31
+Next manual action: verify the exact contract, earnings, quote and available cash at your broker; if you act, record the order and fill here, then run the check-in.
+NO ORDER SENT. Other alerts are alternatives, not approval to stack positions; capacity is rechecked after you record a fill.

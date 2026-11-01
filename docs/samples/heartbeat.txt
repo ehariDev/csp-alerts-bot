@@ -1,0 +1,10 @@
+SYNTHETIC SAMPLE - generated from fictional fixtures by the real templates. Not market data, not a
+recommendation. Ticker EXAMPLE does not exist. Real alerts are produced by the same templates.
+----------------------------------------------------------------------
+kind=SERVICE_HEALTH severity=INFO dedup=HEARTBEAT|paper_primary|2026-10-30
+
+CSP SERVICE HEARTBEAT
+10:05 AM CDT
+Heartbeat: last scan CANDIDATES 2026-10-30 10:05 AM CDT; last monitor NO_ALERTS 2026-10-30 09:45 AM CDT; blockers: none; flags: none
+A stopped or sleeping PC cannot announce its own outage: no heartbeat today means check the PC.
+NO ORDER SENT.

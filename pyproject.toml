@@ -1,0 +1,35 @@
+[project]
+name = "csp-alerts"
+version = "0.1.0"
+description = "Advisory-only cash-secured put research alerts (CSP-TELEGRAM-001). Never places orders."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.6",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0",
+    "tzdata>=2024.1",   # zoneinfo has no system tz database on Windows
+    "pandas>=2.2",      # Stockpile read-only adapter (options-scanner itself is NOT installed)
+    "numpy>=1.26",
+    "yfinance>=0.2.40",
+    "exchange-calendars>=4.5",
+]
+
+[project.scripts]
+csp-alerts = "csp_alerts.cli:main"
+csp-dashboard = "csp_dashboard.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-socket>=0.7"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/csp_alerts", "src/csp_dashboard"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--disable-socket --allow-hosts=127.0.0.1,::1"  # offline tests; loopback fake Telegram server only
+pythonpath = ["src"]

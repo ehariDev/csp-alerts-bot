@@ -1,0 +1,18 @@
+{
+  "synthetic": true,
+  "approved_underlyings": [
+    {
+      "ticker": "EXAMPLE",
+      "asset_type": "STOCK",
+      "sector": "consumer_staples",
+      "correlation_bucket": "defensive_consumer",
+      "max_buy_strike": "75.00",
+      "approved_through": "2026-12-31",
+      "events_reviewed_on": "2026-10-30",
+      "events_cleared_through": "2026-12-31",
+      "ownership_reason": "Fictional example only; replace with owner's actual diligence",
+      "approved_by": "owner",
+      "synthetic": true
+    }
+  ]
+}

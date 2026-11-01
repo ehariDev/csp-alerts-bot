@@ -1,0 +1,13 @@
+SYNTHETIC SAMPLE - generated from fictional fixtures by the real templates. Not market data, not a
+recommendation. Ticker EXAMPLE does not exist. Real alerts are produced by the same templates.
+----------------------------------------------------------------------
+kind=ASSIGNMENT_REVIEW severity=URGENT dedup=EXIT|paper_primary|PAPER-0007|ASSIGNMENT_REVIEW|2026-10-30
+
+CSP ASSIGNMENT REVIEW - URGENT
+Trade PAPER-0007 | EXAMPLE 2026-11-04 PUT $40 | 1 contract(s) | 5 DTE | state OPEN
+Trigger: ASSIGNMENT_REVIEW
+DTE 5
+Data: calendar/ledger based; no quote needed
+Account snapshot used: 9:05 AM CDT
+Next manual action: Check assignment/exercise status at your broker (early assignment is possible). If assigned, run: journal assign.
+Advisory only: this does not cap losses or guarantee an exit price. NO ORDER SENT.

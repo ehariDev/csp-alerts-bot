@@ -1,0 +1,15 @@
+SYNTHETIC SAMPLE - generated from fictional fixtures by the real templates. Not market data, not a
+recommendation. Ticker EXAMPLE does not exist. Real alerts are produced by the same templates.
+----------------------------------------------------------------------
+kind=NO_TRADE_DIGEST severity=INFO dedup=NO_TRADE_DIGEST|2026-10-30
+
+CSP NO-TRADE DIGEST - NO TRADE
+Scan 10:05 AM CDT | approved underlyings scanned: 2 | contracts evaluated: 155
+No candidate passed every hard gate. Reason counts (a contract can have several):
+  DELTA_OUT_OF_RANGE: 120
+  INSUFFICIENT_OI: 95
+  SPREAD_TOO_WIDE: 60
+This is the absence of an alert, not a recommendation.
+Coverage: 2 of 2 approved symbols scanned (EXAMPLE OK 85 puts; OTHER OK 70 puts)
+Heartbeat: last scan NO_OPPORTUNITIES 2026-10-30 10:05 AM CDT; last monitor NO_ALERTS 2026-10-30 10:00 AM CDT; blockers: none; flags: none
+NO ORDER SENT.

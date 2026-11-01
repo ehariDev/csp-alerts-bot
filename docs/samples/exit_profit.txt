@@ -1,0 +1,14 @@
+SYNTHETIC SAMPLE - generated from fictional fixtures by the real templates. Not market data, not a
+recommendation. Ticker EXAMPLE does not exist. Real alerts are produced by the same templates.
+----------------------------------------------------------------------
+kind=PROFIT_EXIT severity=ACTION dedup=EXIT|paper_primary|PAPER-0007|PROFIT_EXIT|2026-10-30
+
+CSP PROFIT EXIT - MANUAL REVIEW
+Trade PAPER-0007 | EXAMPLE 2026-12-09 PUT $40 | 1 contract(s) | 40 DTE | state OPEN
+Trigger: PROFIT_EXIT
+Actual opening credit $0.50/sh | indicative buyback ASK $0.20/sh | est gross P&L $30 (net of recorded fees $30)
+Premium captured: 60% (rule: 60% or more)
+Data: INDICATIVE - quote age UNKNOWN - verify at your broker; retrieved 10:05 AM CDT; exchange quote time UNKNOWN
+Account snapshot used: 9:05 AM CDT
+Next manual action: Check the actual closing ask at your broker/simulator; if you buy to close, record the fill here.
+Advisory only: this does not cap losses or guarantee an exit price. NO ORDER SENT.

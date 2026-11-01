@@ -1,0 +1,10 @@
+SYNTHETIC SAMPLE - generated from fictional fixtures by the real templates. Not market data, not a
+recommendation. Ticker EXAMPLE does not exist. Real alerts are produced by the same templates.
+----------------------------------------------------------------------
+kind=SERVICE_HEALTH severity=URGENT dedup=SERVICE_FAILURE|paper_primary|scan|2026-10-30
+
+CSP SERVICE FAILURE
+10:05 AM CDT: job scan failed before finishing.
+Error: RuntimeError: example failure
+Nothing from this run should be trusted. Check the PC and logs.
+NO ORDER SENT.

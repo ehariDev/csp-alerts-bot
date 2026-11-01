@@ -13,3 +13,21 @@ targetRules = ["generic-api-key"]
 paths = ['''(^|/)tests/unit/test_exits_drawdown\.py$''']
 regexTarget = "match"
 regexes = ['''^p\.contract_key, retrieved_at_utc=NOW $''']
+
+# Reviewed synthetic negative-login input; only this literal in this file is excluded.
+[[allowlists]]
+description = "Synthetic incorrect dashboard password"
+condition = "AND"
+targetRules = ["generic-api-key"]
+paths = ['''(^|/)tests/acceptance/test_web_dashboard\.py$''']
+regexTarget = "match"
+regexes = ['''^password=totally-wrong-pass-123"$''']
+
+# Reviewed redaction-oracle fixture; not a provider credential.
+[[allowlists]]
+description = "Synthetic provider error redaction oracle"
+condition = "AND"
+targetRules = ["generic-api-key"]
+paths = ['''(^|/)tests/acceptance/test_stage_a_provider_failures\.py$''']
+regexTarget = "match"
+regexes = ['''^trigger-word-inside-secret-429", "key=Zq429Lw8Kp3"$''']

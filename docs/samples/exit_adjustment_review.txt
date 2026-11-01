@@ -1,0 +1,13 @@
+SYNTHETIC SAMPLE - generated from fictional fixtures by the real templates. Not market data, not a
+recommendation. Ticker EXAMPLE does not exist. Real alerts are produced by the same templates.
+----------------------------------------------------------------------
+kind=ASSIGNMENT_REVIEW severity=URGENT dedup=EXIT|paper_primary|PAPER-0007|ADJUSTMENT_REVIEW|2026-10-30
+
+CSP ADJUSTMENT REVIEW - URGENT
+Trade PAPER-0007 | EXAMPLE 2026-12-09 PUT $40 | 1 contract(s) | 40 DTE | state ADJUSTMENT_REVIEW
+Trigger: ADJUSTMENT_REVIEW
+contract may be non-standard (split/merger/adjusted deliverable); all numbers need manual verification
+Data: INDICATIVE - quote age UNKNOWN - verify at your broker
+Account snapshot used: 9:05 AM CDT
+Next manual action: The contract may be non-standard (split/merger/adjusted deliverable). Verify every number at your broker.
+Advisory only: this does not cap losses or guarantee an exit price. NO ORDER SENT.

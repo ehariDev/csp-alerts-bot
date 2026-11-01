@@ -1,0 +1,30 @@
+.env
+config/config.yaml
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+*.sqlite
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+*.db
+data/
+third_party/
+*.egg-info/
+
+# Publication safety additions (only this staged copy is changed).
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.age
+dist/
+build/
+.ruff_cache/
+
+# Local review artifacts are not application source.
+requirements/evidence/
+requirements/archive/

@@ -1,0 +1,850 @@
+{
+  "$defs": {
+    "AIPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "mode": {
+          "const": "SOURCE_GROUNDED_VETO_ONLY",
+          "title": "Mode",
+          "type": "string"
+        },
+        "on_error": {
+          "const": "MORE_RESEARCH",
+          "title": "On Error",
+          "type": "string"
+        },
+        "can_override_risk_engine": {
+          "const": false,
+          "title": "Can Override Risk Engine",
+          "type": "boolean"
+        },
+        "can_approve_new_underlyings": {
+          "const": false,
+          "title": "Can Approve New Underlyings",
+          "type": "boolean"
+        },
+        "can_send_orders": {
+          "const": false,
+          "title": "Can Send Orders",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "enabled",
+        "mode",
+        "on_error",
+        "can_override_risk_engine",
+        "can_approve_new_underlyings",
+        "can_send_orders"
+      ],
+      "title": "AIPolicy",
+      "type": "object"
+    },
+    "Alerts": {
+      "additionalProperties": false,
+      "properties": {
+        "telegram_private_chat_only": {
+          "const": true,
+          "title": "Telegram Private Chat Only",
+          "type": "boolean"
+        },
+        "transport": {
+          "const": "sendMessage",
+          "title": "Transport",
+          "type": "string"
+        },
+        "default_dry_run": {
+          "const": true,
+          "title": "Default Dry Run",
+          "type": "boolean"
+        },
+        "no_inbound_trade_commands": {
+          "const": true,
+          "title": "No Inbound Trade Commands",
+          "type": "boolean"
+        },
+        "dedup_entry_by_trading_date": {
+          "title": "Dedup Entry By Trading Date",
+          "type": "boolean"
+        },
+        "dedup_exit_by_trade_trigger_date": {
+          "title": "Dedup Exit By Trade Trigger Date",
+          "type": "boolean"
+        },
+        "critical_repeat_daily_until_resolved": {
+          "title": "Critical Repeat Daily Until Resolved",
+          "type": "boolean"
+        },
+        "no_trade_digest_once_per_session": {
+          "title": "No Trade Digest Once Per Session",
+          "type": "boolean"
+        },
+        "entry_alert_expiry_minutes": {
+          "default": 30,
+          "exclusiveMinimum": 0,
+          "title": "Entry Alert Expiry Minutes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "telegram_private_chat_only",
+        "transport",
+        "default_dry_run",
+        "no_inbound_trade_commands",
+        "dedup_entry_by_trading_date",
+        "dedup_exit_by_trade_trigger_date",
+        "critical_repeat_daily_until_resolved",
+        "no_trade_digest_once_per_session"
+      ],
+      "title": "Alerts",
+      "type": "object"
+    },
+    "Drawdown": {
+      "additionalProperties": false,
+      "properties": {
+        "pause_new_entries_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "ge": 0,
+          "le": 1,
+          "title": "Pause New Entries At"
+        },
+        "reduce_exposure_review_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "ge": 0,
+          "le": 1,
+          "title": "Reduce Exposure Review At"
+        },
+        "hard_halt_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "ge": 0,
+          "le": 1,
+          "title": "Hard Halt At"
+        },
+        "hard_halt_requires_manual_reset": {
+          "const": true,
+          "title": "Hard Halt Requires Manual Reset",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "pause_new_entries_at",
+        "reduce_exposure_review_at",
+        "hard_halt_at",
+        "hard_halt_requires_manual_reset"
+      ],
+      "title": "Drawdown",
+      "type": "object"
+    },
+    "Entries": {
+      "additionalProperties": false,
+      "properties": {
+        "one_contract_per_alert": {
+          "title": "One Contract Per Alert",
+          "type": "boolean"
+        },
+        "min_dte_calendar": {
+          "minimum": 0,
+          "title": "Min Dte Calendar",
+          "type": "integer"
+        },
+        "max_dte_calendar": {
+          "minimum": 0,
+          "title": "Max Dte Calendar",
+          "type": "integer"
+        },
+        "min_abs_delta": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "ge": 0,
+          "le": 1,
+          "title": "Min Abs Delta"
+        },
+        "max_abs_delta": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "ge": 0,
+          "le": 1,
+          "title": "Max Abs Delta"
+        },
+        "require_negative_put_delta": {
+          "const": true,
+          "title": "Require Negative Put Delta",
+          "type": "boolean"
+        },
+        "require_strike_below_spot": {
+          "const": true,
+          "title": "Require Strike Below Spot",
+          "type": "boolean"
+        },
+        "require_strike_at_or_below_owner_buy_limit": {
+          "const": true,
+          "title": "Require Strike At Or Below Owner Buy Limit",
+          "type": "boolean"
+        },
+        "min_open_interest": {
+          "minimum": 0,
+          "title": "Min Open Interest",
+          "type": "integer"
+        },
+        "min_daily_volume": {
+          "minimum": 0,
+          "title": "Min Daily Volume",
+          "type": "integer"
+        },
+        "min_bid_usd_per_share": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "gt": 0,
+          "title": "Min Bid Usd Per Share"
+        },
+        "max_absolute_spread_usd_per_share": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Max Absolute Spread Usd Per Share"
+        },
+        "max_fractional_spread_of_mid": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "ge": 0,
+          "le": 1,
+          "title": "Max Fractional Spread Of Mid"
+        },
+        "max_last_trade_age_calendar_days": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "gt": 0,
+          "title": "Max Last Trade Age Calendar Days"
+        },
+        "require_positive_bid_and_ask": {
+          "const": true,
+          "title": "Require Positive Bid And Ask",
+          "type": "boolean"
+        },
+        "require_standard_100_share_deliverable": {
+          "const": true,
+          "title": "Require Standard 100 Share Deliverable",
+          "type": "boolean"
+        },
+        "block_unverified_events": {
+          "const": true,
+          "title": "Block Unverified Events",
+          "type": "boolean"
+        },
+        "block_earnings_through_expiration": {
+          "const": true,
+          "title": "Block Earnings Through Expiration",
+          "type": "boolean"
+        },
+        "manual_event_review_max_age_calendar_days": {
+          "minimum": 0,
+          "title": "Manual Event Review Max Age Calendar Days",
+          "type": "integer"
+        },
+        "max_alternative_alerts_per_scan": {
+          "exclusiveMinimum": 0,
+          "title": "Max Alternative Alerts Per Scan",
+          "type": "integer"
+        },
+        "rank_basis": {
+          "const": "bid_premium_per_collateral_after_all_gates",
+          "title": "Rank Basis",
+          "type": "string"
+        }
+      },
+      "required": [
+        "one_contract_per_alert",
+        "min_dte_calendar",
+        "max_dte_calendar",
+        "min_abs_delta",
+        "max_abs_delta",
+        "require_negative_put_delta",
+        "require_strike_below_spot",
+        "require_strike_at_or_below_owner_buy_limit",
+        "min_open_interest",
+        "min_daily_volume",
+        "min_bid_usd_per_share",
+        "max_absolute_spread_usd_per_share",
+        "max_fractional_spread_of_mid",
+        "max_last_trade_age_calendar_days",
+        "require_positive_bid_and_ask",
+        "require_standard_100_share_deliverable",
+        "block_unverified_events",
+        "block_earnings_through_expiration",
+        "manual_event_review_max_age_calendar_days",
+        "max_alternative_alerts_per_scan",
+        "rank_basis"
+      ],
+      "title": "Entries",
+      "type": "object"
+    },
+    "Exits": {
+      "additionalProperties": false,
+      "properties": {
+        "profit_captured_fraction": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "ge": 0,
+          "le": 1,
+          "title": "Profit Captured Fraction"
+        },
+        "close_review_at_dte_calendar": {
+          "minimum": 0,
+          "title": "Close Review At Dte Calendar",
+          "type": "integer"
+        },
+        "loss_buyback_ask_multiple": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "gt": 0,
+          "title": "Loss Buyback Ask Multiple"
+        },
+        "delta_review_abs": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "ge": 0,
+          "le": 1,
+          "title": "Delta Review Abs"
+        },
+        "assignment_warning_dte": {
+          "minimum": 0,
+          "title": "Assignment Warning Dte",
+          "type": "integer"
+        },
+        "use_buyback_ask_not_mid": {
+          "const": true,
+          "title": "Use Buyback Ask Not Mid",
+          "type": "boolean"
+        },
+        "stale_quote_suppresses_price_based_alerts": {
+          "const": true,
+          "title": "Stale Quote Suppresses Price Based Alerts",
+          "type": "boolean"
+        },
+        "calendar_alerts_even_when_market_closed": {
+          "const": true,
+          "title": "Calendar Alerts Even When Market Closed",
+          "type": "boolean"
+        },
+        "tier_r_price_alerts_enabled": {
+          "default": true,
+          "title": "Tier R Price Alerts Enabled",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "profit_captured_fraction",
+        "close_review_at_dte_calendar",
+        "loss_buyback_ask_multiple",
+        "delta_review_abs",
+        "assignment_warning_dte",
+        "use_buyback_ask_not_mid",
+        "stale_quote_suppresses_price_based_alerts",
+        "calendar_alerts_even_when_market_closed"
+      ],
+      "title": "Exits",
+      "type": "object"
+    },
+    "ManualData": {
+      "additionalProperties": false,
+      "properties": {
+        "max_account_snapshot_age_hours": {
+          "exclusiveMinimum": 0,
+          "title": "Max Account Snapshot Age Hours",
+          "type": "integer"
+        },
+        "max_stock_mark_age_hours": {
+          "exclusiveMinimum": 0,
+          "title": "Max Stock Mark Age Hours",
+          "type": "integer"
+        },
+        "require_reconciliation_after_every_trade": {
+          "const": true,
+          "title": "Require Reconciliation After Every Trade",
+          "type": "boolean"
+        },
+        "require_daily_end_of_day_reconciliation": {
+          "const": true,
+          "title": "Require Daily End Of Day Reconciliation",
+          "type": "boolean"
+        },
+        "fail_closed_for_entries": {
+          "const": true,
+          "title": "Fail Closed For Entries",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "max_account_snapshot_age_hours",
+        "max_stock_mark_age_hours",
+        "require_reconciliation_after_every_trade",
+        "require_daily_end_of_day_reconciliation",
+        "fail_closed_for_entries"
+      ],
+      "title": "ManualData",
+      "type": "object"
+    },
+    "Market": {
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "const": "yahoo_via_stockpile",
+          "title": "Provider",
+          "type": "string"
+        },
+        "initial_quote_tier": {
+          "const": "INDICATIVE_UNTIMESTAMPED",
+          "title": "Initial Quote Tier",
+          "type": "string"
+        },
+        "option_market": {
+          "title": "Option Market",
+          "type": "string"
+        },
+        "session_calendar": {
+          "const": "XNYS",
+          "title": "Session Calendar",
+          "type": "string"
+        },
+        "calendar_timezone": {
+          "title": "Calendar Timezone",
+          "type": "string"
+        },
+        "scheduler_timezone": {
+          "title": "Scheduler Timezone",
+          "type": "string"
+        },
+        "entry_scans_local": {
+          "items": {
+            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+            "type": "string"
+          },
+          "title": "Entry Scans Local",
+          "type": "array"
+        },
+        "exit_monitor_interval_minutes": {
+          "exclusiveMinimum": 0,
+          "title": "Exit Monitor Interval Minutes",
+          "type": "integer"
+        },
+        "no_entry_in_final_minutes_of_session": {
+          "minimum": 0,
+          "title": "No Entry In Final Minutes Of Session",
+          "type": "integer"
+        },
+        "provider_retries": {
+          "minimum": 0,
+          "title": "Provider Retries",
+          "type": "integer"
+        },
+        "quote_ttl_seconds_if_timestamped": {
+          "exclusiveMinimum": 0,
+          "title": "Quote Ttl Seconds If Timestamped",
+          "type": "integer"
+        },
+        "disable_cached_last_price_as_quote": {
+          "const": true,
+          "title": "Disable Cached Last Price As Quote",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "provider",
+        "initial_quote_tier",
+        "option_market",
+        "session_calendar",
+        "calendar_timezone",
+        "scheduler_timezone",
+        "entry_scans_local",
+        "exit_monitor_interval_minutes",
+        "no_entry_in_final_minutes_of_session",
+        "provider_retries",
+        "quote_ttl_seconds_if_timestamped",
+        "disable_cached_last_price_as_quote"
+      ],
+      "title": "Market",
+      "type": "object"
+    },
+    "Pilot": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "duration_calendar_days": {
+          "exclusiveMinimum": 0,
+          "title": "Duration Calendar Days",
+          "type": "integer"
+        },
+        "max_deployed_put_collateral_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "gt": 0,
+          "title": "Max Deployed Put Collateral Usd"
+        },
+        "require_manual_reconciliation_daily": {
+          "const": true,
+          "title": "Require Manual Reconciliation Daily",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "enabled",
+        "duration_calendar_days",
+        "max_deployed_put_collateral_usd",
+        "require_manual_reconciliation_daily"
+      ],
+      "title": "Pilot",
+      "type": "object"
+    },
+    "Portfolio": {
+      "additionalProperties": false,
+      "properties": {
+        "normal_min_deployed_collateral_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Normal Min Deployed Collateral Usd"
+        },
+        "normal_new_entry_exposure_ceiling_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "gt": 0,
+          "title": "Normal New Entry Exposure Ceiling Usd"
+        },
+        "emergency_absolute_exposure_ceiling_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "gt": 0,
+          "title": "Emergency Absolute Exposure Ceiling Usd"
+        },
+        "desired_uncommitted_cash_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Desired Uncommitted Cash Usd"
+        },
+        "max_underlying_exposure_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "gt": 0,
+          "title": "Max Underlying Exposure Usd"
+        },
+        "max_sector_exposure_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "gt": 0,
+          "title": "Max Sector Exposure Usd"
+        },
+        "max_correlated_bucket_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "gt": 0,
+          "title": "Max Correlated Bucket Usd"
+        },
+        "max_active_short_put_contracts": {
+          "exclusiveMinimum": 0,
+          "title": "Max Active Short Put Contracts",
+          "type": "integer"
+        },
+        "max_contracts_per_underlying": {
+          "exclusiveMinimum": 0,
+          "title": "Max Contracts Per Underlying",
+          "type": "integer"
+        },
+        "max_individual_company_names": {
+          "exclusiveMinimum": 0,
+          "title": "Max Individual Company Names",
+          "type": "integer"
+        },
+        "max_expiry_week_collateral_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "gt": 0,
+          "title": "Max Expiry Week Collateral Usd"
+        },
+        "allow_margin": {
+          "const": false,
+          "title": "Allow Margin",
+          "type": "boolean"
+        },
+        "allow_naked_options": {
+          "const": false,
+          "title": "Allow Naked Options",
+          "type": "boolean"
+        },
+        "treat_working_and_pending_as_committed": {
+          "const": true,
+          "title": "Treat Working And Pending As Committed",
+          "type": "boolean"
+        },
+        "block_on_unknown_cash_or_positions": {
+          "const": true,
+          "title": "Block On Unknown Cash Or Positions",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "normal_min_deployed_collateral_usd",
+        "normal_new_entry_exposure_ceiling_usd",
+        "emergency_absolute_exposure_ceiling_usd",
+        "desired_uncommitted_cash_usd",
+        "max_underlying_exposure_usd",
+        "max_sector_exposure_usd",
+        "max_correlated_bucket_usd",
+        "max_active_short_put_contracts",
+        "max_contracts_per_underlying",
+        "max_individual_company_names",
+        "max_expiry_week_collateral_usd",
+        "allow_margin",
+        "allow_naked_options",
+        "treat_working_and_pending_as_committed",
+        "block_on_unknown_cash_or_positions"
+      ],
+      "title": "Portfolio",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "policy_id": {
+      "minLength": 1,
+      "title": "Policy Id",
+      "type": "string"
+    },
+    "policy_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Policy Version",
+      "type": "string"
+    },
+    "approved_by": {
+      "const": "owner",
+      "title": "Approved By",
+      "type": "string"
+    },
+    "asset_scope": {
+      "items": {
+        "enum": [
+          "STOCK",
+          "ETF"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Asset Scope",
+      "type": "array"
+    },
+    "option_right": {
+      "const": "PUT",
+      "title": "Option Right",
+      "type": "string"
+    },
+    "trade_execution": {
+      "const": "MANUAL_ONLY",
+      "title": "Trade Execution",
+      "type": "string"
+    },
+    "broker_connections": {
+      "const": "DISABLED",
+      "title": "Broker Connections",
+      "type": "string"
+    },
+    "account_scope": {
+      "minLength": 1,
+      "title": "Account Scope",
+      "type": "string"
+    },
+    "account_reference_value_usd": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "gt": 0,
+      "title": "Account Reference Value Usd"
+    },
+    "pilot": {
+      "$ref": "#/$defs/Pilot"
+    },
+    "portfolio": {
+      "$ref": "#/$defs/Portfolio"
+    },
+    "entries": {
+      "$ref": "#/$defs/Entries"
+    },
+    "manual_data": {
+      "$ref": "#/$defs/ManualData"
+    },
+    "exits": {
+      "$ref": "#/$defs/Exits"
+    },
+    "drawdown": {
+      "$ref": "#/$defs/Drawdown"
+    },
+    "market": {
+      "$ref": "#/$defs/Market"
+    },
+    "alerts": {
+      "$ref": "#/$defs/Alerts"
+    },
+    "ai": {
+      "$ref": "#/$defs/AIPolicy"
+    }
+  },
+  "required": [
+    "policy_id",
+    "policy_version",
+    "approved_by",
+    "asset_scope",
+    "option_right",
+    "trade_execution",
+    "broker_connections",
+    "account_scope",
+    "account_reference_value_usd",
+    "pilot",
+    "portfolio",
+    "entries",
+    "manual_data",
+    "exits",
+    "drawdown",
+    "market",
+    "alerts",
+    "ai"
+  ],
+  "title": "Policy",
+  "type": "object"
+}

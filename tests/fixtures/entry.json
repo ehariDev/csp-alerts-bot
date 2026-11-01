@@ -1,0 +1,20 @@
+{
+  "_comment": "ALL VALUES ARE SYNTHETIC SCHEMA FIXTURES (spec 6.1/6.2). Not market data. Preview only.",
+  "now_utc": "2026-10-30T15:05:00Z",
+  "equity_usd": "100000",
+  "free_cash_usd": "50000",
+  "observation": {
+    "underlying": "EXAMPLE", "option_right": "P", "expiration": "2026-12-05", "strike": "75.00", "multiplier": 100,
+    "spot": "80.00", "bid": "0.50", "ask": "0.54", "delta": "-0.130", "delta_source": "STOCKPILE_BLACK_SCHOLES",
+    "implied_volatility": "0.2400", "open_interest": 1000, "daily_volume": 100,
+    "last_option_trade_at_utc": "2026-10-30T14:40:00Z", "quote_at_utc": null,
+    "retrieved_at_utc": "2026-10-30T15:05:00Z", "provider": "YAHOO_VIA_STOCKPILE",
+    "data_tier": "INDICATIVE_UNTIMESTAMPED", "event_check": "UNKNOWN", "iv_excess_pp": null
+  },
+  "approval": {
+    "ticker": "EXAMPLE", "asset_type": "STOCK", "sector": "consumer_staples", "correlation_bucket": "defensive_consumer",
+    "max_buy_strike": "75.00", "approved_through": "2026-12-31", "events_reviewed_on": "2026-10-30",
+    "events_cleared_through": "2027-01-31", "ownership_reason": "Fictional example only", "approved_by": "owner",
+    "standard_deliverable_confirmed_on": "2026-10-30", "synthetic": true
+  }
+}

@@ -1,0 +1,10 @@
+SYNTHETIC SAMPLE - generated from fictional fixtures by the real templates. Not market data, not a
+recommendation. Ticker EXAMPLE does not exist. Real alerts are produced by the same templates.
+----------------------------------------------------------------------
+kind=RECONCILIATION_REQUIRED severity=WARN dedup=RECONCILE_REMINDER|paper_primary|2026-10-30
+
+CSP RECONCILIATION REMINDER
+10:05 AM CDT: your manual record is not confirmed for today.
+Open items: SNAPSHOT_STALE
+Run: daily-check-in (review positions, enter equity and NET free cash, acknowledge).
+Until then new-entry alerts stay blocked; exit and data warnings continue. NO ORDER SENT.

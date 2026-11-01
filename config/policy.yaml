@@ -1,0 +1,115 @@
+# CSP-TELEGRAM-001 section 10. Starting policy values; NOT empirically optimized.
+# Decimals are quoted strings on purpose (YAML floats are rejected).
+# Editing budgets requires a manual edit + `csp-alerts policy-check` + a recorded policy revision.
+policy_id: csp-conservative-v1
+policy_version: '1.1.0'  # 1.1.0: + exits.tier_r_price_alerts_enabled (IT-005), alerts.entry_alert_expiry_minutes (IT-003)
+approved_by: owner
+asset_scope: [STOCK, ETF]
+option_right: PUT
+trade_execution: MANUAL_ONLY
+broker_connections: DISABLED
+account_scope: paper_primary
+account_reference_value_usd: '100000.00'
+
+pilot:
+  enabled: true
+  duration_calendar_days: 90
+  max_deployed_put_collateral_usd: '15000.00'
+  require_manual_reconciliation_daily: true
+
+portfolio:
+  normal_min_deployed_collateral_usd: '20000.00'  # nonbinding target; DO NOT force trades
+  normal_new_entry_exposure_ceiling_usd: '25000.00'
+  emergency_absolute_exposure_ceiling_usd: '30000.00'
+  desired_uncommitted_cash_usd: '70000.00'
+  max_underlying_exposure_usd: '9000.00'
+  max_sector_exposure_usd: '10000.00'
+  max_correlated_bucket_usd: '10000.00'
+  max_active_short_put_contracts: 4
+  max_contracts_per_underlying: 1
+  max_individual_company_names: 2
+  max_expiry_week_collateral_usd: '15000.00'
+  allow_margin: false
+  allow_naked_options: false
+  treat_working_and_pending_as_committed: true
+  block_on_unknown_cash_or_positions: true
+
+entries:
+  one_contract_per_alert: true
+  min_dte_calendar: 35
+  max_dte_calendar: 45
+  min_abs_delta: '0.10'
+  max_abs_delta: '0.15'
+  require_negative_put_delta: true
+  require_strike_below_spot: true
+  require_strike_at_or_below_owner_buy_limit: true
+  min_open_interest: 500
+  min_daily_volume: 50
+  min_bid_usd_per_share: '0.20'
+  max_absolute_spread_usd_per_share: '0.05'
+  max_fractional_spread_of_mid: '0.10'
+  max_last_trade_age_calendar_days: '1.5'
+  require_positive_bid_and_ask: true
+  require_standard_100_share_deliverable: true
+  block_unverified_events: true
+  block_earnings_through_expiration: true
+  manual_event_review_max_age_calendar_days: 7
+  max_alternative_alerts_per_scan: 3
+  rank_basis: bid_premium_per_collateral_after_all_gates  # LABEL ONLY (spec text). Actual order, all gates passed first: spread/mid ascending (liquidity), then bid yield per calendar day, IV excess, open interest, then ticker/expiry/strike. See docs/DECISIONS.md item 25/56.
+
+manual_data:
+  max_account_snapshot_age_hours: 30
+  max_stock_mark_age_hours: 30
+  require_reconciliation_after_every_trade: true
+  require_daily_end_of_day_reconciliation: true
+  fail_closed_for_entries: true
+
+exits:
+  profit_captured_fraction: '0.60'
+  close_review_at_dte_calendar: 21
+  loss_buyback_ask_multiple: '2.00'
+  delta_review_abs: '0.30'
+  assignment_warning_dte: 7
+  use_buyback_ask_not_mid: true
+  stale_quote_suppresses_price_based_alerts: true
+  calendar_alerts_even_when_market_closed: true
+  tier_r_price_alerts_enabled: true   # owner decision IT-005: indicative price-review alerts; set false to tighten
+
+drawdown:
+  pause_new_entries_at: '0.03'
+  reduce_exposure_review_at: '0.05'
+  hard_halt_at: '0.08'
+  hard_halt_requires_manual_reset: true
+
+market:
+  provider: yahoo_via_stockpile
+  initial_quote_tier: INDICATIVE_UNTIMESTAMPED
+  option_market: US_LISTED_EQUITY_ETF
+  session_calendar: XNYS
+  calendar_timezone: America/New_York
+  scheduler_timezone: America/Chicago
+  entry_scans_local: ['10:05', '13:05']
+  exit_monitor_interval_minutes: 15
+  no_entry_in_final_minutes_of_session: 20
+  provider_retries: 2
+  quote_ttl_seconds_if_timestamped: 120
+  disable_cached_last_price_as_quote: true
+
+alerts:
+  telegram_private_chat_only: true
+  transport: sendMessage
+  default_dry_run: true
+  no_inbound_trade_commands: true
+  dedup_entry_by_trading_date: true
+  dedup_exit_by_trade_trigger_date: true
+  critical_repeat_daily_until_resolved: true
+  no_trade_digest_once_per_session: true
+  entry_alert_expiry_minutes: 30      # IT-003: queued entry alerts expire and are revalidated before send
+
+ai:
+  enabled: false
+  mode: SOURCE_GROUNDED_VETO_ONLY
+  on_error: MORE_RESEARCH
+  can_override_risk_engine: false
+  can_approve_new_underlyings: false
+  can_send_orders: false

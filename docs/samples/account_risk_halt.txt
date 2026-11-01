@@ -1,0 +1,10 @@
+SYNTHETIC SAMPLE - generated from fictional fixtures by the real templates. Not market data, not a
+recommendation. Ticker EXAMPLE does not exist. Real alerts are produced by the same templates.
+----------------------------------------------------------------------
+kind=ACCOUNT_RISK severity=CRITICAL dedup=BLOCKED|2026-10-30|HARD_HALT|HARD_HALT
+
+CSP ENTRY SCAN BLOCKED
+Scan 10:05 AM CDT: new-entry alerts are suspended.
+Reason codes: HARD_HALT
+Existing-position monitoring is unaffected. Fix the manual record or wait for the market session.
+NO ORDER SENT.

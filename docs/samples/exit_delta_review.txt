@@ -1,0 +1,14 @@
+SYNTHETIC SAMPLE - generated from fictional fixtures by the real templates. Not market data, not a
+recommendation. Ticker EXAMPLE does not exist. Real alerts are produced by the same templates.
+----------------------------------------------------------------------
+kind=DELTA_REVIEW severity=URGENT dedup=EXIT|paper_primary|PAPER-0007|DELTA_REVIEW|2026-10-30
+
+CSP DELTA REVIEW - URGENT
+Trade PAPER-0007 | EXAMPLE 2026-12-09 PUT $40 | 1 contract(s) | 40 DTE | state OPEN
+Trigger: DELTA_REVIEW
+Actual opening credit $0.50/sh | indicative buyback ASK $1.00/sh | est gross P&L $-50 (net of recorded fees $-50)
+Model delta -0.35 (rule: abs 0.30 or more; model (verify independently))
+Data: INDICATIVE - quote age UNKNOWN - verify at your broker; retrieved 10:05 AM CDT; exchange quote time UNKNOWN
+Account snapshot used: 9:05 AM CDT
+Next manual action: Verify delta independently and review downside/assignment risk; record any action here.
+Advisory only: this does not cap losses or guarantee an exit price. NO ORDER SENT.

@@ -1,0 +1,11 @@
+# Copy to config/config.yaml (git-ignored) for NON-policy local options only. (Not read by any code yet.)
+# All strategy/risk thresholds live in config/policy.yaml (spec CSP-TELEGRAM-001 section 10) and are
+# validated on startup; do not duplicate them here. The old fixed-ticker universe and
+# 0.15-0.30 delta / 21-45 DTE / 12% yield defaults were superseded by the spec.
+paths:
+  policy: config/policy.yaml
+  approved_underlyings: config/approved.json   # owner-approved whitelist; ships EMPTY
+  database: data/csp_alerts.sqlite3            # also settable via CSP_DATABASE_URL in .env
+  stockpile_root: third_party/stockpile        # pinned upstream checkout (git-ignored)
+# Scheduling lives in policy.yaml (market.entry_scans_local, exit_monitor_interval_minutes).
+# Windows: run via Task Scheduler or the in-process scheduler; see ops/README.md.

@@ -1,0 +1,12 @@
+SYNTHETIC SAMPLE - generated from fictional fixtures by the real templates. Not market data, not a
+recommendation. Ticker EXAMPLE does not exist. Real alerts are produced by the same templates.
+----------------------------------------------------------------------
+kind=TIME_EXIT severity=ACTION dedup=EXIT|paper_primary|PAPER-0007|TIME_EXIT|2026-10-30
+
+CSP TIME EXIT - MANUAL REVIEW (21 DTE or less)
+Trade PAPER-0007 | EXAMPLE 2026-11-20 PUT $40 | 1 contract(s) | 21 DTE | state OPEN
+Trigger: TIME_EXIT
+Data: calendar/ledger based; no quote needed
+Account snapshot used: 9:05 AM CDT
+Next manual action: Close or reassess the position at your broker per your plan; record any fill here.
+Advisory only: this does not cap losses or guarantee an exit price. NO ORDER SENT.
