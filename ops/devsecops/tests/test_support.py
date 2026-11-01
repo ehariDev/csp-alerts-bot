@@ -19,6 +19,7 @@ from backup import inspect_snapshot, snapshot
 from health_probe import backup_recent, endpoint
 from readiness import check_workflows, private_path, publication_check, verify_upstream
 from release import wheel_check
+from run_tests import WINDOWS_ONLY, clean_test_env, pytest_command
 from stage import stage
 
 
@@ -52,6 +53,14 @@ class PublicationTests(unittest.TestCase):
     def test_destination_never_overwritten(self):
         with self.assertRaises(ValueError):
             stage(self.root, self.root / "config")
+
+    def test_manifest_records_separate_paths_from_hashes(self):
+        output = self.root / "snapshot"
+        stage(self.root, output)
+        manifest = json.loads((output / "PUBLICATION_MANIFEST.json").read_text())
+        self.assertEqual(manifest["schema_version"], 1)
+        self.assertTrue(manifest["files"])
+        self.assertEqual(set(manifest["files"][0]), {"path", "sha256"})
 
     def test_tracked_secrets_rejected_even_outside_allowlist(self):
         (self.root / ".git").mkdir()
@@ -162,6 +171,23 @@ class HealthTests(unittest.TestCase):
             self.assertTrue(backup_recent(root, now + 60))
             self.assertFalse(backup_recent(root, now + 27 * 3600))
             self.assertFalse(backup_recent(root, now - 60))
+
+
+class TestRunnerTests(unittest.TestCase):
+    def test_ci_application_settings_and_credentials_cannot_override_fixture_files(self):
+        original = {"CSP_DRY_RUN": "true", "CSP_DISABLE_BROKER_ACCESS": "true",
+                    "TELEGRAM_BOT_TOKEN": "synthetic", "csp_dashboard_port": "9999", "PATH": "tools"}
+        self.assertEqual(clean_test_env(original), {"PATH": "tools"})
+        self.assertEqual(original["CSP_DRY_RUN"], "true")
+
+    def test_windows_keeps_all_tests_and_every_platform_blocks_external_sockets(self):
+        for platform in ("win32", "linux"):
+            command = pytest_command(["tests/unit", "tests/acceptance", "-q"], platform)
+            self.assertIn("--disable-socket", command)
+            self.assertIn("--allow-hosts=127.0.0.1,::1", command)
+            exclusions = [arg for arg in command if arg.startswith("--deselect=")]
+            self.assertEqual(len(exclusions), 0 if platform == "win32" else len(WINDOWS_ONLY))
+            self.assertFalse(any("test_owner_journey" in arg or "real_process_start_stop" in arg for arg in exclusions))
 
 
 @unittest.skipUnless(shutil.which("age") and shutil.which("age-keygen"), "native age tools not installed")
