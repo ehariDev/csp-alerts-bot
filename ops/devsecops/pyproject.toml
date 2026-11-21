@@ -7,7 +7,7 @@ dependencies = [
   "build>=1.2,<2",
   "hatchling>=1.27,<2",
   "pip-audit>=2.10,<3",
-  "ruff>=0.14,<1",
+  "ruff>=0.17.5,<1",
 ]
 
 [tool.uv]
